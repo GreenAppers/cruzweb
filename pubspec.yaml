@@ -1,0 +1,41 @@
+name: cruzweb
+
+environment:
+  sdk: '>=2.2.0 <3.0.0'
+
+dependencies:
+  charts_flutter:
+    git:
+      url: https://github.com/gazialankus/charts_flutter_web
+      path: web/charts/flutter
+  cruzawl:
+    path: ./cruzawl
+  flutter_web: any
+  flutter_web_ui: any
+  gradient_app_bar:
+    git:
+      url: https://github.com/GreenAppers/GradientAppBar
+  qr_flutter:
+    git:
+      url: https://github.com/GreenAppers/qr.flutter
+  scoped_model:
+    git:
+      url: https://github.com/GreenAppers/scoped_model
+
+dev_dependencies:
+  # Enables the `pub run build_runner` command
+  build_runner: ^1.1.2
+  # Includes the JavaScript compilers
+  build_web_compilers: ^1.0.0
+
+# flutter_web packages are not published to pub.dartlang.org
+# These overrides tell the package tools to get them from GitHub
+dependency_overrides:
+  flutter_web:
+    git:
+      url: https://github.com/flutter/flutter_web
+      path: packages/flutter_web
+  flutter_web_ui:
+    git:
+      url: https://github.com/flutter/flutter_web
+      path: packages/flutter_web_ui
