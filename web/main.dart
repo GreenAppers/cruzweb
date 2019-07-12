@@ -27,7 +27,7 @@ class CruzWeb extends Model {
     currency.network.peerChanged = peerChanged;
     currency.network
         .addPeerWithSpec(
-            PeerPreference('SatoshiLocomoco', 'wallet.cruzbit.xyz', 'CRUZ',
+            PeerPreference('SatoshiLocomoco', 'wallet.cruzbit.xyz', 'CRUZ', '',
                 debugPrint: debugPrint),
             currency.genesisBlockId())
         .connect();
