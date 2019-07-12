@@ -20,7 +20,8 @@ before_install:
 
 script:
   - find ${HOME} -name webdev -print
-  - ${HOME}/flutter/.pub-cache/bin/webdev build
+  - ls ${HOME}/.pub-cache/bin
+  - ${HOME}/.pub-cache/bin/webdev build
 
 after_success:
   - echo "success"
