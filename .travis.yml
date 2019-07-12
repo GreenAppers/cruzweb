@@ -19,7 +19,8 @@ before_install:
   - ${HOME}/flutter/bin/flutter packages get
 
 script:
-  - ${HOME}/flutter/.pub-cache/bin/webdev build
+  - find . -name webdev -print
+  - ${HOME}/.pub-cache/bin/webdev build
 
 after_success:
   - echo "success"
