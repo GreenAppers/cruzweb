@@ -14,6 +14,7 @@ before_install:
   - echo ${HOME}
   - echo ${TRAVIS_BUILD_DIR}
   - git clone https://github.com/flutter/flutter.git -b master --depth 1 ${HOME}/flutter
+  - ${HOME}/flutter/bin/flutter pub global activate webdev
   - ${HOME}/flutter/bin/flutter doctor -v
   - ${HOME}/flutter/bin/flutter packages get
 
