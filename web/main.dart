@@ -1,4 +1,4 @@
-// Copyright 2019 cruzbit developers
+// Copyright 2019 cruzweb developers
 // Use of this source code is governed by a MIT-style license that can be found in the LICENSE file.
 
 import 'dart:html';
