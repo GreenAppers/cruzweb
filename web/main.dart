@@ -8,6 +8,7 @@ import 'package:flutter_web/material.dart';
 import 'package:flutter_web_ui/ui.dart' as ui;
 
 import 'package:scoped_model/scoped_model.dart';
+import 'package:sembast/sembast_memory.dart';
 
 import 'package:cruzawl/currency.dart';
 import 'package:cruzawl/cruz.dart';
@@ -17,11 +18,14 @@ import 'package:cruzweb/cruzawl-ui/address.dart';
 import 'package:cruzweb/cruzawl-ui/block.dart';
 import 'package:cruzweb/cruzawl-ui/cruzbase.dart';
 import 'package:cruzweb/cruzawl-ui/transaction.dart';
+import 'package:cruzweb/cruzawl-ui/preferences.dart';
 import 'package:cruzweb/cruzawl-ui/ui.dart';
 
 class CruzWeb extends Model {
-  Currency currency = Currency.fromJson('CRUZ');
-  CruzWeb() {
+  final CruzallPreferences preferences;
+  final Currency currency = Currency.fromJson('CRUZ');
+
+  CruzWeb(this.preferences) {
     currency.network.autoReconnectSeconds = null;
     currency.network.tipChanged = tipChanged;
     currency.network.peerChanged = peerChanged;
@@ -89,24 +93,43 @@ class CruzWebLoading extends StatelessWidget {
   }
 }
 
-void main() async {
-  await ui.webOnlyInitializePlatform();
-  debugPrint('Main ' + Uri.base.toString());
-  CruzWeb appState = CruzWeb();
-  final double maxWidth = 700;
+class CruzWebApp extends StatefulWidget {
+  final CruzWeb appState;
+  CruzWebApp(this.appState);
 
-  runApp(
-    ScopedModel<CruzWeb>(
-      model: appState,
+  @override
+  CruzWebAppState createState() => CruzWebAppState();
+}
+
+class CruzWebAppState extends State<CruzWebApp> {
+  @override
+  Widget build(BuildContext context) {
+    final double maxWidth = 700;
+    final CruzWeb appState = widget.appState;
+    final ThemeData theme =
+      themes[appState.preferences.theme] ?? themes['deepOrange'];
+
+    return ScopedModel<SimpleScaffoldActions>(
+      model: SimpleScaffoldActions(<Widget>[
+        (PopupMenuBuilder()
+              ..addItem(
+                icon: Icon(Icons.settings),
+                text: 'Settings',
+                onSelected: () => window.location.hash = '/settings',
+              ))
+            .build(
+          icon: Icon(Icons.more_vert),
+        ),
+      ]),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            primarySwatch: Colors.deepOrange, accentColor: Colors.orangeAccent),
+        theme: theme,
         onGenerateRoute: (settings) {
           final String name = settings.name;
           const String address = '/address/',
               block = '/block/',
               height = '/height/',
+              settingsUrl = '/settings',
               transaction = '/transaction/';
           final Widget loading = CruzWebLoading(appState.currency);
           if (name.startsWith(address)) {
@@ -156,6 +179,12 @@ void main() async {
                         .pushNamed('/height/' + tx.height.toString())),
               ),
             );
+          else if (name.startsWith(settingsUrl))
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (BuildContext context) => CruzWebSettings(appState, () => setState((){})),
+            );
+
           return MaterialPageRoute(
             builder: (BuildContext context) => ScopedModelDescendant<CruzWeb>(
               builder: (context, child, model) => BlockWidget(appState.currency,
@@ -164,6 +193,48 @@ void main() async {
           );
         },
       ),
-    ),
+    );
+  }
+}
+
+class CruzWebSettings extends StatefulWidget {
+  final CruzWeb appState;
+  final VoidCallback updateTheme;
+  CruzWebSettings(this.appState, [this.updateTheme]);
+
+  @override
+  _CruzWebSettingsState createState() => _CruzWebSettingsState();
+}
+
+class _CruzWebSettingsState extends State<CruzWebSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return SimpleScaffold('Settings', ListView(
+      padding: EdgeInsets.only(top: 20),
+      children: <Widget>[
+        ListTile(
+          leading: Icon(Icons.color_lens),
+          title: Text('Theme'),
+          trailing: DropdownButton<String>(
+            value: widget.appState.preferences.theme,
+            onChanged: (String val) {
+              widget.appState.preferences.theme = val;
+              if (widget.updateTheme != null) (widget.updateTheme)();
+            },
+            items: buildDropdownMenuItem(themes.keys.toList()),
+          ),
+        ),
+      ],
+    ));
+  }
+}
+
+void main() async {
+  await ui.webOnlyInitializePlatform();
+  debugPrint('Main ' + Uri.base.toString());
+  CruzWeb appState =
+    CruzWeb(CruzallPreferences(await databaseFactoryMemoryFs.openDatabase('settings.db')));
+  runApp(
+    ScopedModel<CruzWeb>(model: appState, child: CruzWebApp(appState)),
   );
 }
