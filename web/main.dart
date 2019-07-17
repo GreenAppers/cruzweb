@@ -68,27 +68,25 @@ class CruzWebLoading extends StatelessWidget {
     );
 
     if (currency.network.peerState != PeerState.disconnected) {
-      return SimpleScaffold(
-          "Loading...", Center(child: CircularProgressIndicator()));
+      return SimpleScaffold(Center(child: CircularProgressIndicator()),
+          title: "Loading...");
     } else {
       String url = 'https' + currency.network.peerAddress.substring(3);
-      return SimpleScaffold(
-          "Error",
-          Container(
-            padding: EdgeInsets.all(32),
-            child: Column(
-              children: <Widget>[
-                Text('If this is a new browser session, visit:',
-                    style: labelTextStyle),
-                GestureDetector(
-                  child: Text(url, style: linkStyle),
-                  onTap: () => window.open(url, url),
-                ),
-                Text('Accept the certificate and refresh the page.',
-                    style: labelTextStyle),
-              ],
-            ),
-          ));
+      return SimpleScaffold(Container(
+          padding: EdgeInsets.all(32),
+          child: Column(
+            children: <Widget>[
+              Text('If this is a new browser session, visit:',
+                  style: labelTextStyle),
+              GestureDetector(
+                child: Text(url, style: linkStyle),
+                onTap: () => window.open(url, url),
+              ),
+              Text('Accept the certificate and refresh the page.',
+                  style: labelTextStyle),
+            ],
+          ),
+        ), title: 'Error');
     }
   }
 }
@@ -130,6 +128,7 @@ class CruzWebAppState extends State<CruzWebApp> {
               block = '/block/',
               height = '/height/',
               settingsUrl = '/settings',
+              tipUrl = '/tip',
               transaction = '/transaction/';
           final Widget loading = CruzWebLoading(appState.currency);
           if (name.startsWith(address)) {
@@ -184,11 +183,19 @@ class CruzWebAppState extends State<CruzWebApp> {
               settings: settings,
               builder: (BuildContext context) => CruzWebSettings(appState, () => setState((){})),
             );
+          else if (name.startsWith(tipUrl))
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (BuildContext context) => ScopedModelDescendant<CruzWeb>(
+                builder: (context, child, model) => BlockWidget(appState.currency,
+                    loadingWidget: loading, maxWidth: maxWidth),
+              ),
+            );
 
           return MaterialPageRoute(
             builder: (BuildContext context) => ScopedModelDescendant<CruzWeb>(
-              builder: (context, child, model) => BlockWidget(appState.currency,
-                  loadingWidget: loading, maxWidth: maxWidth),
+              builder: (context, child, model) =>
+                  CruzbaseWidget(appState.currency, appState.currency.network.tip),
             ),
           );
         },
@@ -209,7 +216,7 @@ class CruzWebSettings extends StatefulWidget {
 class _CruzWebSettingsState extends State<CruzWebSettings> {
   @override
   Widget build(BuildContext context) {
-    return SimpleScaffold('Settings', ListView(
+    return SimpleScaffold(ListView(
       padding: EdgeInsets.only(top: 20),
       children: <Widget>[
         ListTile(
@@ -225,7 +232,7 @@ class _CruzWebSettingsState extends State<CruzWebSettings> {
           ),
         ),
       ],
-    ));
+    ), title: 'Settings');
   }
 }
 
