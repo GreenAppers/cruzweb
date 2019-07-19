@@ -6,6 +6,7 @@ import 'dart:html';
 import 'package:flutter_web/material.dart';
 import 'package:flutter_web_ui/ui.dart' as ui;
 
+import 'package:clippy/browser.dart' as clippy;
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sembast/sembast_memory.dart';
 
@@ -231,18 +232,21 @@ class _CruzWebSettingsState extends State<CruzWebSettings> {
   }
 }
 
+void setClipboardText(BuildContext context, String text) async =>
+  await clippy.write(text);
+
 void main() async {
   await ui.webOnlyInitializePlatform();
   debugPrint('Main ' + Uri.base.toString());
 
-  Cruzawl appState = Cruzawl(
+  Cruzawl appState = Cruzawl(setClipboardText, databaseFactoryMemoryFs,
       CruzawlPreferences(
           await databaseFactoryMemoryFs.openDatabase('settings.db')),
       null);
   appState.currency = Currency.fromJson('CRUZ');
   appState
       .addPeer(PeerPreference(
-          'SatoshiLocomoco', 'wallet.cruzbit.xyz', 'CRUZ', '',
+          'Satoshi Locomoco', 'wallet.cruzbit.xyz', 'CRUZ', '',
           debugPrint: debugPrint))
       .connect();
 
