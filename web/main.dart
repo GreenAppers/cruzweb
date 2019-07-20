@@ -78,8 +78,8 @@ class CruzWebAppState extends State<CruzWebApp> {
   Widget build(BuildContext context) {
     final double maxWidth = 700;
     final Cruzawl appState = widget.appState;
-    final ThemeData theme =
-        themes[appState.preferences.theme] ?? themes['deepOrange'];
+    final AppTheme theme =
+        themes[appState.preferences.theme] ?? themes['teal'];
 
     return ScopedModel<SimpleScaffoldActions>(
       model: SimpleScaffoldActions(<Widget>[
@@ -100,7 +100,7 @@ class CruzWebAppState extends State<CruzWebApp> {
       ]),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: theme,
+        theme: theme.data,
         onGenerateRoute: (settings) {
           final String name = settings.name;
           const String address = '/address/',
@@ -244,6 +244,7 @@ void main() async {
           await databaseFactoryMemoryFs.openDatabase('settings.db')),
       null);
   appState.currency = Currency.fromJson('CRUZ');
+  appState.currency.network.autoReconnectSeconds = null;
   appState
       .addPeer(PeerPreference(
           'Satoshi Locomoco', 'wallet.cruzbit.xyz', 'CRUZ', '',

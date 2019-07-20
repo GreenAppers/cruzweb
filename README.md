@@ -1,5 +1,5 @@
 # cruzweb [![Build Status](https://travis-ci.org/GreenAppers/cruzweb.svg?branch=master)](https://travis-ci.org/GreenAppers/cruzweb)
-[<img style="float:left" src="icon.png" />](https://www.cruzbase.com)<br/> [Try it here](https://www.cruzbase.com)
+[<img src="web/assets/cruzbit.png" />](https://github.com/cruzbit/cruzbit) [<img src="web/assets/icon.png" />](https://www.cruzbase.com)<br/> [Try it here](https://www.cruzbase.com)
 
 # Alpha Software
 
