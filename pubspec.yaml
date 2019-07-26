@@ -16,6 +16,7 @@ dependencies:
   gradient_app_bar:
     git:
       url: https://github.com/GreenAppers/GradientAppBar
+  intl_translation: ^0.17.1
   qr_flutter:
     git:
       url: https://github.com/GreenAppers/qr.flutter

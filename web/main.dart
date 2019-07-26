@@ -7,6 +7,8 @@ import 'package:flutter_web/material.dart';
 import 'package:flutter_web_ui/ui.dart' as ui;
 
 import 'package:clippy/browser.dart' as clippy;
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sembast/sembast_memory.dart';
 
@@ -17,6 +19,7 @@ import 'package:cruzawl/preferences.dart';
 import 'package:cruzweb/cruzawl-ui/address.dart';
 import 'package:cruzweb/cruzawl-ui/block.dart';
 import 'package:cruzweb/cruzawl-ui/cruzbase.dart';
+import 'package:cruzweb/cruzawl-ui/localizations.dart';
 import 'package:cruzweb/cruzawl-ui/model.dart';
 import 'package:cruzweb/cruzawl-ui/network.dart';
 import 'package:cruzweb/cruzawl-ui/transaction.dart';
@@ -99,8 +102,16 @@ class CruzWebAppState extends State<CruzWebApp> {
         ),
       ]),
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
         theme: theme.data,
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: [
+          AppLocalizationsDelegate(),
+          //GlobalMaterialLocalizations.delegate,
+          //GlobalWidgetsLocalizations.delegate
+        ],
+        supportedLocales: [Locale("en"), Locale("zh")],
+        onGenerateTitle: (BuildContext context) =>
+            AppLocalizations.of(context).title,
         onGenerateRoute: (settings) {
           final String name = settings.name;
           const String address = '/address/',
@@ -237,6 +248,7 @@ void setClipboardText(BuildContext context, String text) async =>
 
 void main() async {
   await ui.webOnlyInitializePlatform();
+  initializeDateFormatting();
   debugPrint('Main ' + Uri.base.toString());
 
   Cruzawl appState = Cruzawl(setClipboardText, databaseFactoryMemoryFs,
