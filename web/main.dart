@@ -19,9 +19,10 @@ import 'package:cruzawl/preferences.dart';
 import 'package:cruzweb/cruzawl-ui/address.dart';
 import 'package:cruzweb/cruzawl-ui/block.dart';
 import 'package:cruzweb/cruzawl-ui/cruzbase.dart';
-import 'package:cruzweb/cruzawl-ui/localizations.dart';
+import 'package:cruzweb/cruzawl-ui/localization.dart';
 import 'package:cruzweb/cruzawl-ui/model.dart';
 import 'package:cruzweb/cruzawl-ui/network.dart';
+import 'package:cruzweb/cruzawl-ui/settings.dart';
 import 'package:cruzweb/cruzawl-ui/transaction.dart';
 import 'package:cruzweb/cruzawl-ui/ui.dart';
 
@@ -31,16 +32,9 @@ class CruzWebLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScopedModel.of<Cruzawl>(context, rebuildOnChange: true);
+    final Cruzawl appState =
+        ScopedModel.of<Cruzawl>(context, rebuildOnChange: true);
     final ThemeData theme = Theme.of(context);
-    final TextStyle linkStyle = TextStyle(
-      color: theme.accentColor,
-      decoration: TextDecoration.underline,
-    );
-    final TextStyle labelTextStyle = TextStyle(
-      fontFamily: 'MartelSans',
-      color: Colors.grey,
-    );
 
     if (currency.network.peerState != PeerState.disconnected) {
       return SimpleScaffold(Center(child: CircularProgressIndicator()),
@@ -53,13 +47,13 @@ class CruzWebLoading extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Text('If this is a new browser session, visit:',
-                    style: labelTextStyle),
+                    style: appState.theme.labelStyle),
                 GestureDetector(
-                  child: Text(url, style: linkStyle),
+                  child: Text(url, style: appState.theme.linkStyle),
                   onTap: () => window.open(url, url),
                 ),
                 Text('Accept the certificate and refresh the page.',
-                    style: labelTextStyle),
+                    style: appState.theme.labelStyle),
               ],
             ),
           ),
@@ -68,21 +62,13 @@ class CruzWebLoading extends StatelessWidget {
   }
 }
 
-class CruzWebApp extends StatefulWidget {
-  final Cruzawl appState;
-  CruzWebApp(this.appState);
-
-  @override
-  CruzWebAppState createState() => CruzWebAppState();
-}
-
-class CruzWebAppState extends State<CruzWebApp> {
+class CruzWebApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final Cruzawl appState =
+        ScopedModel.of<Cruzawl>(context, rebuildOnChange: true);
     final double maxWidth = 700;
-    final Cruzawl appState = widget.appState;
-    final AppTheme theme =
-        themes[appState.preferences.theme] ?? themes['teal'];
+    final AppTheme theme = themes[appState.preferences.theme] ?? themes['teal'];
 
     return ScopedModel<SimpleScaffoldActions>(
       model: SimpleScaffoldActions(<Widget>[
@@ -104,157 +90,148 @@ class CruzWebAppState extends State<CruzWebApp> {
       child: MaterialApp(
         theme: theme.data,
         debugShowCheckedModeBanner: false,
+        locale: appState.localeOverride,
         localizationsDelegates: [
-          AppLocalizationsDelegate(),
+          LocalizationDelegate(),
           //GlobalMaterialLocalizations.delegate,
           //GlobalWidgetsLocalizations.delegate
         ],
-        supportedLocales: [Locale("en"), Locale("zh")],
+        supportedLocales: Localization.supportedLocales,
         onGenerateTitle: (BuildContext context) =>
-            AppLocalizations.of(context).title,
+            Localization.of(context).title,
         onGenerateRoute: (settings) {
-          final String name = settings.name;
-          const String address = '/address/',
-              addPeerUrl = '/addPeer',
-              block = '/block/',
-              height = '/height/',
-              networkUrl = '/network',
-              settingsUrl = '/settings',
-              tipUrl = '/tip',
-              transaction = '/transaction/';
+          final PagePath page = parsePagePath(settings.name);
           final Widget loading = CruzWebLoading(appState.currency);
-          if (name.startsWith(address)) {
-            String addressText = name.substring(address.length);
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (context) => ScopedModelDescendant<Cruzawl>(
-                  builder: (context, child, model) => addressText == 'cruzbase'
-                      ? CruzbaseWidget(
-                          appState.currency, appState.currency.network.tip)
-                      : ExternalAddressWidget(appState.currency, addressText,
-                          loadingWidget: loading, maxWidth: maxWidth)),
-            );
-          } else if (name.startsWith(block))
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (context) => ScopedModelDescendant<Cruzawl>(
-                builder: (context, child, model) => BlockWidget(
-                    appState.currency,
-                    maxWidth: maxWidth,
-                    loadingWidget: loading,
-                    blockId: name.substring(block.length)),
-              ),
-            );
-          else if (name.startsWith(height))
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (context) => ScopedModelDescendant<Cruzawl>(
-                builder: (context, child, model) => BlockWidget(
-                    appState.currency,
-                    maxWidth: maxWidth,
-                    loadingWidget: loading,
-                    blockHeight: int.tryParse(name.substring(height.length)) ??
-                        appState.currency.network.tipHeight),
-              ),
-            );
-          else if (name.startsWith(transaction))
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (context) => ScopedModelDescendant<Cruzawl>(
-                builder: (context, child, model) => TransactionWidget(
-                    appState.currency, TransactionInfo(),
-                    maxWidth: maxWidth,
-                    loadingWidget: loading,
-                    transactionIdText: name.substring(transaction.length),
-                    onHeightTap: (tx) => Navigator.of(context)
-                        .pushNamed('/height/' + tx.height.toString())),
-              ),
-            );
-          else if (name.startsWith(settingsUrl))
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (BuildContext context) =>
-                  CruzWebSettings(appState, () => setState(() {})),
-            );
-          else if (name.startsWith(networkUrl))
-            return MaterialPageRoute(
+
+          switch (page.page) {
+            case 'address':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (context) => ScopedModelDescendant<Cruzawl>(
+                    builder: (context, child, model) => page.arg == 'cruzbase'
+                        ? CruzbaseWidget(
+                            appState.currency, appState.currency.network.tip)
+                        : ExternalAddressWidget(appState.currency, page.arg,
+                            loadingWidget: loading, maxWidth: maxWidth)),
+              );
+
+            case 'block':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (context) => ScopedModelDescendant<Cruzawl>(
+                  builder: (context, child, model) => BlockWidget(
+                      appState.currency,
+                      maxWidth: maxWidth,
+                      loadingWidget: loading,
+                      blockId: page.arg),
+                ),
+              );
+
+            case 'height':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (context) => ScopedModelDescendant<Cruzawl>(
+                  builder: (context, child, model) => BlockWidget(
+                      appState.currency,
+                      maxWidth: maxWidth,
+                      loadingWidget: loading,
+                      blockHeight: int.tryParse(page.arg) ??
+                          appState.currency.network.tipHeight),
+                ),
+              );
+
+            case 'transaction':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (context) => ScopedModelDescendant<Cruzawl>(
+                  builder: (context, child, model) => TransactionWidget(
+                      appState.currency, TransactionInfo(),
+                      maxWidth: maxWidth,
+                      loadingWidget: loading,
+                      transactionIdText: page.arg,
+                      onHeightTap: (tx) => Navigator.of(context)
+                          .pushNamed('/height/' + tx.height.toString())),
+                ),
+              );
+
+            case 'settings':
+              return MaterialPageRoute(
                 settings: settings,
                 builder: (BuildContext context) => SimpleScaffold(
-                    CruzawlNetworkSettings(),
-                    title: appState.currency.ticker + ' Network'));
-          else if (name.startsWith(addPeerUrl))
-            return MaterialPageRoute(
-                settings: settings,
-                builder: (BuildContext context) => SimpleScaffold(AddPeerWidget(), title: 'New Peer'));
-          else if (name.startsWith(tipUrl))
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (BuildContext context) => ScopedModelDescendant<Cruzawl>(
-                builder: (context, child, model) => BlockWidget(
-                    appState.currency,
-                    loadingWidget: loading,
-                    maxWidth: maxWidth),
-              ),
-            );
+                    CruzallSettings(),
+                    title: Localization.of(context).settings),
+              );
 
-          return MaterialPageRoute(
-            builder: (BuildContext context) => ScopedModelDescendant<Cruzawl>(
-              builder: (context, child, model) => CruzbaseWidget(
-                  appState.currency, appState.currency.network.tip),
-            ),
-          );
+            case 'support':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (BuildContext context) => SimpleScaffold(
+                    CruzallSupport(),
+                    title: Localization.of(context).support),
+              );
+
+            case 'network':
+              return MaterialPageRoute(
+                  settings: settings,
+                  builder: (BuildContext context) => SimpleScaffold(
+                      CruzawlNetworkSettings(),
+                      title: appState.currency.ticker + ' Network'));
+
+            case 'addPeer':
+              return MaterialPageRoute(
+                  settings: settings,
+                  builder: (BuildContext context) =>
+                      SimpleScaffold(AddPeerWidget(), title: 'New Peer'));
+
+            case 'tip':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (BuildContext context) =>
+                    ScopedModelDescendant<Cruzawl>(
+                  builder: (context, child, model) => BlockWidget(
+                      appState.currency,
+                      loadingWidget: loading,
+                      maxWidth: maxWidth),
+                ),
+              );
+
+            default:
+              return MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    ScopedModelDescendant<Cruzawl>(
+                  builder: (context, child, model) => CruzbaseWidget(
+                      appState.currency, appState.currency.network.tip),
+                ),
+              );
+          }
         },
       ),
     );
   }
 }
 
-class CruzWebSettings extends StatefulWidget {
-  final Cruzawl appState;
-  final VoidCallback updateTheme;
-  CruzWebSettings(this.appState, [this.updateTheme]);
-
-  @override
-  _CruzWebSettingsState createState() => _CruzWebSettingsState();
-}
-
-class _CruzWebSettingsState extends State<CruzWebSettings> {
-  @override
-  Widget build(BuildContext context) {
-    return SimpleScaffold(
-        ListView(
-          padding: EdgeInsets.only(top: 20),
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.color_lens),
-              title: Text('Theme'),
-              trailing: DropdownButton<String>(
-                value: widget.appState.preferences.theme,
-                onChanged: (String val) {
-                  widget.appState.preferences.theme = val;
-                  if (widget.updateTheme != null) (widget.updateTheme)();
-                },
-                items: buildDropdownMenuItem(themes.keys.toList()),
-              ),
-            ),
-          ],
-        ),
-        title: 'Settings');
-  }
-}
+String assetPath(String asset) => asset;
 
 void setClipboardText(BuildContext context, String text) async =>
-  await clippy.write(text);
+    await clippy.write(text);
+
+void launchUrl(BuildContext context, String url) =>
+  window.open(url, url);
 
 void main() async {
   await ui.webOnlyInitializePlatform();
   initializeDateFormatting();
   debugPrint('Main ' + Uri.base.toString());
 
-  Cruzawl appState = Cruzawl(setClipboardText, databaseFactoryMemoryFs,
+  Cruzawl appState = Cruzawl(
+      assetPath,
+      launchUrl,
+      setClipboardText,
+      databaseFactoryMemoryFs,
       CruzawlPreferences(
           await databaseFactoryMemoryFs.openDatabase('settings.db')),
-      null);
+      null,
+      packageInfo: PackageInfo('Cruzall', 'com.greenappers.cruzall', '1.0.14', '14'));
   appState.currency = Currency.fromJson('CRUZ');
   appState.currency.network.autoReconnectSeconds = null;
   appState
@@ -264,6 +241,6 @@ void main() async {
       .connect();
 
   runApp(
-    ScopedModel<Cruzawl>(model: appState, child: CruzWebApp(appState)),
+    ScopedModel<Cruzawl>(model: appState, child: CruzWebApp()),
   );
 }
