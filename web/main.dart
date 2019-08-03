@@ -63,10 +63,11 @@ class CruzWebLoading extends StatelessWidget {
 }
 
 class CruzWebApp extends StatelessWidget {
+  final Cruzawl appState;
+  CruzWebApp(this.appState);
+
   @override
   Widget build(BuildContext context) {
-    final Cruzawl appState =
-        ScopedModel.of<Cruzawl>(context, rebuildOnChange: true);
     final double maxWidth = 700;
     final AppTheme theme = themes[appState.preferences.theme] ?? themes['teal'];
 
@@ -109,8 +110,7 @@ class CruzWebApp extends StatelessWidget {
                 settings: settings,
                 builder: (context) => ScopedModelDescendant<Cruzawl>(
                     builder: (context, child, model) => page.arg == 'cruzbase'
-                        ? CruzbaseWidget(
-                            appState.currency, appState.currency.network.tip)
+                        ? CruzbaseWidget(appState.currency)
                         : ExternalAddressWidget(appState.currency, page.arg,
                             loadingWidget: loading, maxWidth: maxWidth)),
               );
@@ -158,7 +158,7 @@ class CruzWebApp extends StatelessWidget {
               return MaterialPageRoute(
                 settings: settings,
                 builder: (BuildContext context) => SimpleScaffold(
-                    CruzallSettings(),
+                    CruzallSettings(walletSettings: false),
                     title: Localization.of(context).settings),
               );
 
@@ -200,7 +200,7 @@ class CruzWebApp extends StatelessWidget {
                 builder: (BuildContext context) =>
                     ScopedModelDescendant<Cruzawl>(
                   builder: (context, child, model) => CruzbaseWidget(
-                      appState.currency, appState.currency.network.tip),
+                      appState.currency),
                 ),
               );
           }
@@ -241,6 +241,11 @@ void main() async {
       .connect();
 
   runApp(
-    ScopedModel<Cruzawl>(model: appState, child: CruzWebApp()),
+    ScopedModel<Cruzawl>(
+      model: appState,
+      child: ScopedModelDescendant<Cruzawl>(
+        builder: (context, child, model) => CruzWebApp(appState)
+      ),
+    ),
   );
 }
