@@ -99,14 +99,15 @@ class CruzWebApp extends StatelessWidget {
         supportedLocales: Localization.supportedLocales,
         onGenerateTitle: (BuildContext context) =>
             Localization.of(context).title,
-        onGenerateRoute: CruzallRoutes(appState,
+        onGenerateRoute: CruzallRoutes(
+          appState,
           maxWidth: maxWidth,
           loadingWidget: CruzWebLoading(appState.currency),
           defaultRoute: MaterialPageRoute(
             builder: (BuildContext context) =>
                 ScopedModelDescendant<WalletModel>(
-              builder: (context, child, model) => CruzbaseWidget(
-                  appState.currency),
+              builder: (context, child, model) =>
+                  CruzbaseWidget(appState.currency),
             ),
           ),
         ).onGenerateRoute,
@@ -120,8 +121,7 @@ String assetPath(String asset) => asset;
 void setClipboardText(BuildContext context, String text) async =>
     await clippy.write(text);
 
-void launchUrl(BuildContext context, String url) =>
-  window.open(url, url);
+void launchUrl(BuildContext context, String url) => window.open(url, url);
 
 void main() async {
   await ui.webOnlyInitializePlatform();
@@ -134,28 +134,28 @@ void main() async {
       setClipboardText,
       databaseFactoryMemoryFs,
       CruzawlPreferences(
-          await databaseFactoryMemoryFs.openDatabase('settings.db')),
+          await databaseFactoryMemoryFs.openDatabase('settings.db'),
+          testing: true),
       null,
-      packageInfo: PackageInfo('Cruzall', 'com.greenappers.cruzall', '1.0.14', '14'));
+      packageInfo:
+          PackageInfo('Cruzall', 'com.greenappers.cruzall', '1.0.14', '14'));
 
   Currency currency = Currency.fromJson('CRUZ');
-  appState.addWallet(Wallet.fromPublicKeyList(
-      databaseFactoryMemoryFs,
-      'empty.cruzall',
-      'Empty wallet',
-      Currency.fromJson('CRUZ'),
-      Seed(randBytes(64)),
-      <PublicAddress>[ currency.nullAddress ],
-      appState.preferences,
-      debugPrint,
-      appState.openedWallet));
+  appState.addWallet(
+      Wallet.fromPublicKeyList(
+          databaseFactoryMemoryFs,
+          'empty.cruzall',
+          'Empty wallet',
+          currency,
+          Seed(randBytes(64)),
+          <PublicAddress>[currency.nullAddress],
+          appState.preferences,
+          debugPrint,
+          appState.openedWallet),
+      store: false);
 
   appState.currency.network.autoReconnectSeconds = null;
-  appState
-      .addPeer(PeerPreference(
-          'Satoshi Locomoco', 'wallet.cruzbit.xyz', 'CRUZ', '',
-          debugPrint: debugPrint))
-      .connect();
+  appState.connectPeers(currency);
 
   runApp(
     ScopedModel<Cruzawl>(
@@ -163,8 +163,7 @@ void main() async {
       child: ScopedModel<WalletModel>(
         model: appState.wallet,
         child: ScopedModelDescendant<Cruzawl>(
-          builder: (context, child, model) => CruzWebApp(appState)
-        ),
+            builder: (context, child, model) => CruzWebApp(appState)),
       ),
     ),
   );
