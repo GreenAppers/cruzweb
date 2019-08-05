@@ -15,15 +15,14 @@ import 'package:sembast/sembast_memory.dart';
 import 'package:cruzawl/currency.dart';
 import 'package:cruzawl/network.dart';
 import 'package:cruzawl/preferences.dart';
+import 'package:cruzawl/util.dart';
+import 'package:cruzawl/wallet.dart';
 
-import 'package:cruzweb/cruzawl-ui/address.dart';
-import 'package:cruzweb/cruzawl-ui/block.dart';
 import 'package:cruzweb/cruzawl-ui/cruzbase.dart';
 import 'package:cruzweb/cruzawl-ui/localization.dart';
 import 'package:cruzweb/cruzawl-ui/model.dart';
-import 'package:cruzweb/cruzawl-ui/network.dart';
+import 'package:cruzweb/cruzawl-ui/routes.dart';
 import 'package:cruzweb/cruzawl-ui/settings.dart';
-import 'package:cruzweb/cruzawl-ui/transaction.dart';
 import 'package:cruzweb/cruzawl-ui/ui.dart';
 
 class CruzWebLoading extends StatelessWidget {
@@ -100,111 +99,17 @@ class CruzWebApp extends StatelessWidget {
         supportedLocales: Localization.supportedLocales,
         onGenerateTitle: (BuildContext context) =>
             Localization.of(context).title,
-        onGenerateRoute: (settings) {
-          final PagePath page = parsePagePath(settings.name);
-          final Widget loading = CruzWebLoading(appState.currency);
-
-          switch (page.page) {
-            case 'address':
-              return MaterialPageRoute(
-                settings: settings,
-                builder: (context) => ScopedModelDescendant<Cruzawl>(
-                    builder: (context, child, model) => page.arg == 'cruzbase'
-                        ? CruzbaseWidget(appState.currency)
-                        : ExternalAddressWidget(appState.currency, page.arg,
-                            loadingWidget: loading, maxWidth: maxWidth)),
-              );
-
-            case 'block':
-              return MaterialPageRoute(
-                settings: settings,
-                builder: (context) => ScopedModelDescendant<Cruzawl>(
-                  builder: (context, child, model) => BlockWidget(
-                      appState.currency,
-                      maxWidth: maxWidth,
-                      loadingWidget: loading,
-                      blockId: page.arg),
-                ),
-              );
-
-            case 'height':
-              return MaterialPageRoute(
-                settings: settings,
-                builder: (context) => ScopedModelDescendant<Cruzawl>(
-                  builder: (context, child, model) => BlockWidget(
-                      appState.currency,
-                      maxWidth: maxWidth,
-                      loadingWidget: loading,
-                      blockHeight: int.tryParse(page.arg) ??
-                          appState.currency.network.tipHeight),
-                ),
-              );
-
-            case 'transaction':
-              return MaterialPageRoute(
-                settings: settings,
-                builder: (context) => ScopedModelDescendant<Cruzawl>(
-                  builder: (context, child, model) => TransactionWidget(
-                      appState.currency, TransactionInfo(),
-                      maxWidth: maxWidth,
-                      loadingWidget: loading,
-                      transactionIdText: page.arg,
-                      onHeightTap: (tx) => Navigator.of(context)
-                          .pushNamed('/height/' + tx.height.toString())),
-                ),
-              );
-
-            case 'settings':
-              return MaterialPageRoute(
-                settings: settings,
-                builder: (BuildContext context) => SimpleScaffold(
-                    CruzallSettings(walletSettings: false),
-                    title: Localization.of(context).settings),
-              );
-
-            case 'support':
-              return MaterialPageRoute(
-                settings: settings,
-                builder: (BuildContext context) => SimpleScaffold(
-                    CruzallSupport(),
-                    title: Localization.of(context).support),
-              );
-
-            case 'network':
-              return MaterialPageRoute(
-                  settings: settings,
-                  builder: (BuildContext context) => SimpleScaffold(
-                      CruzawlNetworkSettings(),
-                      title: appState.currency.ticker + ' Network'));
-
-            case 'addPeer':
-              return MaterialPageRoute(
-                  settings: settings,
-                  builder: (BuildContext context) =>
-                      SimpleScaffold(AddPeerWidget(), title: 'New Peer'));
-
-            case 'tip':
-              return MaterialPageRoute(
-                settings: settings,
-                builder: (BuildContext context) =>
-                    ScopedModelDescendant<Cruzawl>(
-                  builder: (context, child, model) => BlockWidget(
-                      appState.currency,
-                      loadingWidget: loading,
-                      maxWidth: maxWidth),
-                ),
-              );
-
-            default:
-              return MaterialPageRoute(
-                builder: (BuildContext context) =>
-                    ScopedModelDescendant<Cruzawl>(
-                  builder: (context, child, model) => CruzbaseWidget(
-                      appState.currency),
-                ),
-              );
-          }
-        },
+        onGenerateRoute: CruzallRoutes(appState,
+          maxWidth: maxWidth,
+          loadingWidget: CruzWebLoading(appState.currency),
+          defaultRoute: MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ScopedModelDescendant<WalletModel>(
+              builder: (context, child, model) => CruzbaseWidget(
+                  appState.currency),
+            ),
+          ),
+        ).onGenerateRoute,
       ),
     );
   }
@@ -232,7 +137,19 @@ void main() async {
           await databaseFactoryMemoryFs.openDatabase('settings.db')),
       null,
       packageInfo: PackageInfo('Cruzall', 'com.greenappers.cruzall', '1.0.14', '14'));
-  appState.currency = Currency.fromJson('CRUZ');
+
+  Currency currency = Currency.fromJson('CRUZ');
+  appState.addWallet(Wallet.fromPublicKeyList(
+      databaseFactoryMemoryFs,
+      'empty.cruzall',
+      'Empty wallet',
+      Currency.fromJson('CRUZ'),
+      Seed(randBytes(64)),
+      <PublicAddress>[ currency.nullAddress ],
+      appState.preferences,
+      debugPrint,
+      appState.openedWallet));
+
   appState.currency.network.autoReconnectSeconds = null;
   appState
       .addPeer(PeerPreference(
@@ -243,8 +160,11 @@ void main() async {
   runApp(
     ScopedModel<Cruzawl>(
       model: appState,
-      child: ScopedModelDescendant<Cruzawl>(
-        builder: (context, child, model) => CruzWebApp(appState)
+      child: ScopedModel<WalletModel>(
+        model: appState.wallet,
+        child: ScopedModelDescendant<Cruzawl>(
+          builder: (context, child, model) => CruzWebApp(appState)
+        ),
       ),
     ),
   );
