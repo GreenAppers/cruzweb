@@ -18,12 +18,12 @@ import 'package:cruzawl/preferences.dart';
 import 'package:cruzawl/util.dart';
 import 'package:cruzawl/wallet.dart';
 
-import 'package:cruzweb/cruzawl-ui/cruzbase.dart';
-import 'package:cruzweb/cruzawl-ui/localization.dart';
-import 'package:cruzweb/cruzawl-ui/model.dart';
-import 'package:cruzweb/cruzawl-ui/routes.dart';
-import 'package:cruzweb/cruzawl-ui/settings.dart';
-import 'package:cruzweb/cruzawl-ui/ui.dart';
+import 'package:cruzweb/cruzawl-ui/lib/cruzbase.dart';
+import 'package:cruzweb/cruzawl-ui/lib/localization.dart';
+import 'package:cruzweb/cruzawl-ui/lib/model.dart';
+import 'package:cruzweb/cruzawl-ui/lib/routes.dart';
+import 'package:cruzweb/cruzawl-ui/lib/settings.dart';
+import 'package:cruzweb/cruzawl-ui/lib/ui.dart';
 
 class CruzWebLoading extends StatelessWidget {
   final Currency currency;
@@ -92,7 +92,7 @@ class CruzWebApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         locale: appState.localeOverride,
         localizationsDelegates: [
-          LocalizationDelegate(),
+          LocalizationDelegate(title: 'cruzbase'),
           //GlobalMaterialLocalizations.delegate,
           //GlobalWidgetsLocalizations.delegate
         ],
