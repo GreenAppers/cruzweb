@@ -7,7 +7,6 @@ import 'package:flutter_web/material.dart';
 import 'package:flutter_web_ui/ui.dart' as ui;
 
 import 'package:clippy/browser.dart' as clippy;
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sembast/sembast_memory.dart';
@@ -22,7 +21,6 @@ import 'package:cruzweb/cruzawl-ui/lib/cruzbase.dart';
 import 'package:cruzweb/cruzawl-ui/lib/localization.dart';
 import 'package:cruzweb/cruzawl-ui/lib/model.dart';
 import 'package:cruzweb/cruzawl-ui/lib/routes.dart';
-import 'package:cruzweb/cruzawl-ui/lib/settings.dart';
 import 'package:cruzweb/cruzawl-ui/lib/ui.dart';
 
 class CruzWebLoading extends StatelessWidget {
@@ -33,7 +31,6 @@ class CruzWebLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     final Cruzawl appState =
         ScopedModel.of<Cruzawl>(context, rebuildOnChange: true);
-    final ThemeData theme = Theme.of(context);
 
     if (currency.network.peerState != PeerState.disconnected) {
       return SimpleScaffold(Center(child: CircularProgressIndicator()),
@@ -138,7 +135,7 @@ void main() async {
           testing: true),
       null,
       packageInfo:
-          PackageInfo('Cruzall', 'com.greenappers.cruzall', '1.0.14', '14'));
+          PackageInfo('CruzWeb', 'com.greenappers.cruzweb', '1.0.15', '15'));
 
   Currency currency = Currency.fromJson('CRUZ');
   appState.addWallet(
