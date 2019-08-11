@@ -179,7 +179,7 @@ packages:
       path: cruzawl
       relative: true
     source: path
-    version: "1.0.3+3"
+    version: "1.0.4+4"
   crypto:
     dependency: transitive
     description:

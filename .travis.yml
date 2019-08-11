@@ -18,6 +18,7 @@ before_install:
   - ${HOME}/flutter/bin/flutter doctor -v
   - ${HOME}/flutter/bin/flutter pub global activate webdev
   - ${HOME}/flutter/bin/flutter packages get
+  - ${HOME}/flutter/bin/flutter pub global run webdev build
 
 script:
   - ${HOME}/.pub-cache/bin/webdev build

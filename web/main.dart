@@ -79,6 +79,11 @@ class CruzWebApp extends StatelessWidget {
                 icon: Icon(Icons.vpn_lock),
                 text: 'Network',
                 onSelected: () => window.location.hash = '/network',
+              )
+              ..addItem(
+                icon: Icon(Icons.redeem),
+                text: 'Donations',
+                onSelected: () => window.location.hash = '/address/RWEgB+NQs/T83EkmIFNVJG+xK64Hm90GmQgrdR2V7BI=',
               ))
             .build(
           icon: Icon(Icons.more_vert),
@@ -131,9 +136,9 @@ void main() async {
       setClipboardText,
       databaseFactoryMemoryFs,
       CruzawlPreferences(
-          await databaseFactoryMemoryFs.openDatabase('settings.db'),
-          testing: true),
-      null,
+          await databaseFactoryMemoryFs.openDatabase('settings.db')),
+      '/',
+      NullFileSystem(),
       packageInfo:
           PackageInfo('CruzWeb', 'com.greenappers.cruzweb', '1.0.15', '15'));
 
@@ -141,6 +146,7 @@ void main() async {
   appState.addWallet(
       Wallet.fromPublicKeyList(
           databaseFactoryMemoryFs,
+          appState.fileSystem,
           'empty.cruzall',
           'Empty wallet',
           currency,
