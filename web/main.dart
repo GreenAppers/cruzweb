@@ -83,12 +83,13 @@ class CruzWebApp extends StatelessWidget {
               ..addItem(
                 icon: Icon(Icons.redeem),
                 text: 'Donations',
-                onSelected: () => window.location.hash = '/address/RWEgB+NQs/T83EkmIFNVJG+xK64Hm90GmQgrdR2V7BI=',
+                onSelected: () => window.location.hash =
+                    '/address/RWEgB+NQs/T83EkmIFNVJG+xK64Hm90GmQgrdR2V7BI=',
               ))
             .build(
           icon: Icon(Icons.more_vert),
         ),
-      ]),
+      ], searchBar: true),
       child: MaterialApp(
         theme: theme.data,
         debugShowCheckedModeBanner: false,
@@ -108,8 +109,9 @@ class CruzWebApp extends StatelessWidget {
           defaultRoute: MaterialPageRoute(
             builder: (BuildContext context) =>
                 ScopedModelDescendant<WalletModel>(
-              builder: (context, child, model) =>
-                  CruzbaseWidget(appState.currency),
+              builder: (context, child, model) => CruzbaseWidget(
+                  appState.currency,
+                  wideStyle: useWideStyle(context, maxWidth)),
             ),
           ),
         ).onGenerateRoute,
