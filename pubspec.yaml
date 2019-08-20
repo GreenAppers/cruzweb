@@ -23,6 +23,10 @@ dependencies:
   scoped_model:
     git:
       url: https://github.com/GreenAppers/scoped_model
+  syntax_highlighter:
+    git:
+      url: https://github.com/GreenAppers/syntax_highlighter
+  tuple: ^1.0.2
 
 dev_dependencies:
   # Enables the `pub run build_runner` command

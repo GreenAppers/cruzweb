@@ -547,6 +547,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0+1"
+  syntax_highlighter:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "1baea9793cfae4bbdc17b878ecba86e2aaa50c21"
+      url: "https://github.com/GreenAppers/syntax_highlighter"
+    source: git
+    version: "0.1.0"
   term_glyph:
     dependency: transitive
     description:
@@ -561,6 +570,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.1+2"
+  tuple:
+    dependency: "direct main"
+    description:
+      name: tuple
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   tweetnacl:
     dependency: transitive
     description:

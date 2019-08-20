@@ -8,6 +8,7 @@ import 'package:flutter_web_ui/ui.dart' as ui;
 
 import 'package:clippy/browser.dart' as clippy;
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sembast/sembast_memory.dart';
 
@@ -80,6 +81,11 @@ class CruzWebApp extends StatelessWidget {
                 text: 'Network',
                 onSelected: () => window.location.hash = '/network',
               )
+              /*..addItem(
+                icon: Icon(Icons.settings_input_svideo),
+                text: 'Console',
+                onSelected: () => window.location.hash = '/console',
+              )*/
               ..addItem(
                 icon: Icon(Icons.redeem),
                 text: 'Donations',
@@ -125,6 +131,8 @@ String assetPath(String asset) => asset;
 void setClipboardText(BuildContext context, String text) async =>
     await clippy.write(text);
 
+Future<String> getClipboardText() async => 'unused';
+
 void launchUrl(BuildContext context, String url) => window.open(url, url);
 
 void main() async {
@@ -136,9 +144,11 @@ void main() async {
       assetPath,
       launchUrl,
       setClipboardText,
+      getClipboardText,
       databaseFactoryMemoryFs,
       CruzawlPreferences(
-          await databaseFactoryMemoryFs.openDatabase('settings.db')),
+          await databaseFactoryMemoryFs.openDatabase('settings.db'),
+          () => NumberFormat.currency().currencyName),
       '/',
       NullFileSystem(),
       packageInfo:
