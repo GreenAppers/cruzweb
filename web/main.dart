@@ -13,12 +13,13 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:sembast/sembast_memory.dart';
 
 import 'package:cruzawl/currency.dart';
+import 'package:cruzawl/http.dart';
 import 'package:cruzawl/network.dart';
 import 'package:cruzawl/preferences.dart';
 import 'package:cruzawl/util.dart';
 import 'package:cruzawl/wallet.dart';
 
-import 'package:cruzweb/cruzawl-ui/lib/cruzbase.dart';
+import 'package:cruzweb/cruzawl-ui/lib/explorer/cruzbase.dart';
 import 'package:cruzweb/cruzawl-ui/lib/localization.dart';
 import 'package:cruzweb/cruzawl-ui/lib/model.dart';
 import 'package:cruzweb/cruzawl-ui/lib/routes.dart';
@@ -72,22 +73,22 @@ class CruzWebApp extends StatelessWidget {
       model: SimpleScaffoldActions(<Widget>[
         (PopupMenuBuilder()
               ..addItem(
-                icon: Icon(Icons.settings),
+                icon: Icons.settings,
                 text: 'Settings',
                 onSelected: () => window.location.hash = '/settings',
               )
               ..addItem(
-                icon: Icon(Icons.vpn_lock),
+                icon: Icons.vpn_lock,
                 text: 'Network',
                 onSelected: () => window.location.hash = '/network',
               )
               /*..addItem(
-                icon: Icon(Icons.settings_input_svideo),
+                icon: Icons.settings_input_svideo,
                 text: 'Console',
                 onSelected: () => window.location.hash = '/console',
               )*/
               ..addItem(
-                icon: Icon(Icons.redeem),
+                icon: Icons.redeem,
                 text: 'Donations',
                 onSelected: () => window.location.hash =
                     '/address/RWEgB+NQs/T83EkmIFNVJG+xK64Hm90GmQgrdR2V7BI=',
@@ -151,6 +152,7 @@ void main() async {
           () => NumberFormat.currency().currencyName),
       '/',
       NullFileSystem(),
+      httpClient: HttpClientImpl(),
       packageInfo:
           PackageInfo('CruzWeb', 'com.greenappers.cruzweb', '1.0.15', '15'));
 
