@@ -26,19 +26,19 @@ import 'package:cruzweb/cruzawl-ui/lib/routes.dart';
 import 'package:cruzweb/cruzawl-ui/lib/ui.dart';
 
 class CruzWebLoading extends StatelessWidget {
-  final Currency currency;
-  CruzWebLoading(this.currency);
+  final PeerNetwork network;
+  CruzWebLoading(this.network);
 
   @override
   Widget build(BuildContext context) {
     final Cruzawl appState =
         ScopedModel.of<Cruzawl>(context, rebuildOnChange: true);
 
-    if (currency.network.peerState != PeerState.disconnected) {
+    if (network.peerState != PeerState.disconnected) {
       return SimpleScaffold(Center(child: CircularProgressIndicator()),
           title: "Loading...");
     } else {
-      String url = 'https' + currency.network.peerAddress.substring(3);
+      String url = 'https' + network.peerAddress.substring(3);
       return SimpleScaffold(
           Container(
             padding: EdgeInsets.all(32),
@@ -112,12 +112,12 @@ class CruzWebApp extends StatelessWidget {
         onGenerateRoute: CruzallRoutes(
           appState,
           maxWidth: maxWidth,
-          loadingWidget: CruzWebLoading(appState.currency),
+          loadingWidget: CruzWebLoading(appState.network),
           defaultRoute: MaterialPageRoute(
             builder: (BuildContext context) =>
                 ScopedModelDescendant<WalletModel>(
               builder: (context, child, model) => CruzbaseWidget(
-                  appState.currency,
+                  appState.network,
                   wideStyle: useWideStyle(context, maxWidth)),
             ),
           ),
@@ -154,7 +154,7 @@ void main() async {
       NullFileSystem(),
       httpClient: HttpClientImpl(),
       packageInfo:
-          PackageInfo('CruzWeb', 'com.greenappers.cruzweb', '1.0.15', '15'));
+          PackageInfo('CruzWeb', 'com.greenappers.cruzweb', '1.1.0', '20'));
 
   Currency currency = Currency.fromJson('CRUZ');
   appState.addWallet(
@@ -163,7 +163,7 @@ void main() async {
           appState.fileSystem,
           'empty.cruzall',
           'Empty wallet',
-          currency,
+          findPeerNetworkForCurrency(appState.networks, currency),
           Seed(randBytes(64)),
           <PublicAddress>[currency.nullAddress],
           appState.preferences,
@@ -171,7 +171,7 @@ void main() async {
           appState.openedWallet),
       store: false);
 
-  appState.currency.network.autoReconnectSeconds = null;
+  appState.network.autoReconnectSeconds = null;
   appState.connectPeers(currency);
 
   runApp(
