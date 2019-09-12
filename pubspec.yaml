@@ -18,10 +18,32 @@ dependencies:
   sembast: ^2.0.1
 
 dev_dependencies:
-  # Enables the `pub run build_runner` command
   build_runner: ^1.6.5
-  # Includes the JavaScript compilers
   build_web_compilers: ^2.1.5
+  flutter_test:
+    sdk: flutter
 
 dependency_overrides:
   intl: 0.16.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - web/assets/
+  fonts:
+    - family: MartelSans
+      fonts:
+        - asset: web/assets/fonts/MartelSans-ExtraLight.ttf
+          weight: 200
+        - asset: web/assets/fonts/MartelSans-Light.ttf
+          weight: 300
+        - asset: web/assets/fonts/MartelSans-Regular.ttf
+          weight: 400
+        - asset: web/assets/fonts/MartelSans-SemiBold.ttf
+          weight: 600
+        - asset: web/assets/fonts/MartelSans-Bold.ttf
+          weight: 700
+        - asset: web/assets/fonts/MartelSans-ExtraBold.ttf
+          weight: 800
+        - asset: web/assets/fonts/MartelSans-Black.ttf
+          weight: 900
