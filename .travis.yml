@@ -18,7 +18,6 @@ before_install:
   - export PATH=$PATH:${HOME}/flutter/bin
   - flutter doctor -v
   - flutter packages get
-  - flutter test
   - flutter packages pub run build_runner build lib
   - flutter config --enable-web
 
