@@ -3,10 +3,10 @@
 
 import 'dart:html';
 
-import 'package:flutter_web/material.dart';
-import 'package:flutter_web_ui/ui.dart' as ui;
+import 'package:flutter/material.dart';
 
 import 'package:clippy/browser.dart' as clippy;
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -18,12 +18,11 @@ import 'package:cruzawl/network.dart';
 import 'package:cruzawl/preferences.dart';
 import 'package:cruzawl/util.dart';
 import 'package:cruzawl/wallet.dart';
-
-import 'package:cruzweb/cruzawl-ui/lib/explorer/cruzbase.dart';
-import 'package:cruzweb/cruzawl-ui/lib/localization.dart';
-import 'package:cruzweb/cruzawl-ui/lib/model.dart';
-import 'package:cruzweb/cruzawl-ui/lib/routes.dart';
-import 'package:cruzweb/cruzawl-ui/lib/ui.dart';
+import 'package:cruzawl_ui/explorer/cruzbase.dart';
+import 'package:cruzawl_ui/localization.dart';
+import 'package:cruzawl_ui/model.dart';
+import 'package:cruzawl_ui/routes.dart';
+import 'package:cruzawl_ui/ui.dart';
 
 class CruzWebLoading extends StatelessWidget {
   final PeerNetwork network;
@@ -103,13 +102,13 @@ class CruzWebApp extends StatelessWidget {
         locale: appState.localeOverride,
         localizationsDelegates: [
           LocalizationDelegate(title: 'cruzbase'),
-          //GlobalMaterialLocalizations.delegate,
-          //GlobalWidgetsLocalizations.delegate
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate
         ],
         supportedLocales: Localization.supportedLocales,
         onGenerateTitle: (BuildContext context) =>
             Localization.of(context).title,
-        onGenerateRoute: CruzallRoutes(
+        onGenerateRoute: CruzawlRoutes(
           appState,
           maxWidth: maxWidth,
           loadingWidget: CruzWebLoading(appState.network),
@@ -137,8 +136,6 @@ Future<String> getClipboardText() async => 'unused';
 void launchUrl(BuildContext context, String url) => window.open(url, url);
 
 void main() async {
-  await ui.webOnlyInitializePlatform();
-  initializeDateFormatting();
   debugPrint('Main ' + Uri.base.toString());
 
   Cruzawl appState = Cruzawl(

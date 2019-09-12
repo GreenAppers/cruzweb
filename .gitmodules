@@ -1,5 +1,5 @@
-[submodule "lib/cruzawl-ui"]
-	path = lib/cruzawl-ui
+[submodule "cruzawl-ui"]
+	path = cruzawl-ui
 	url = https://github.com/GreenAppers/cruzawl-ui
 [submodule "cruzawl"]
 	path = cruzawl
