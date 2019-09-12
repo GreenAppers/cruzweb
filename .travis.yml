@@ -16,6 +16,8 @@ before_install:
   - echo ${TRAVIS_BUILD_DIR}
   - git clone https://github.com/flutter/flutter.git -b master ${HOME}/flutter
   - ${HOME}/flutter/bin/flutter doctor -v
+  - ${HOME}/flutter/bin/flutter upgrade
+  - ${HOME}/flutter/bin/flutter doctor -v
   - ${HOME}/flutter/bin/flutter packages get
   - ${HOME}/flutter/bin/flutter config --enable-web
 
