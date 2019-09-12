@@ -151,7 +151,7 @@ void main() async {
       NullFileSystem(),
       httpClient: HttpClientImpl(),
       packageInfo:
-          PackageInfo('CruzWeb', 'com.greenappers.cruzweb', '1.1.0', '20'));
+          PackageInfo('CruzWeb', 'com.greenappers.cruzweb', '1.1.1', '21'));
 
   Currency currency = Currency.fromJson('CRUZ');
   appState.addWallet(
